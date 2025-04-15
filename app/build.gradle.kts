@@ -3,7 +3,12 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("kotlin-kapt")
+    id ("dagger.hilt.android.plugin")
 }
+
+extra.set("camerax_version", "1.3.0")
+extra.set("compose_version", "1.5.7")
 
 android {
     namespace = "com.example.novaliora"
@@ -38,7 +43,14 @@ android {
     buildFeatures {
         compose = true
     }
+
+
+
+
 }
+val cameraxVersion = extra["camerax_version"] as String
+val composeVersion = extra["compose_version"] as String
+
 
 dependencies {
 
@@ -61,6 +73,49 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation ("com.google.accompanist:accompanist-pager:0.34.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.34.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
 
+    // Hilt
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-compiler:2.48")
+    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+// TensorFlow Lite
+    implementation("org.tensorflow:tensorflow-lite-support:0.4.0")
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+    implementation("org.tensorflow:tensorflow-lite-gpu:2.14.0")
+
+// CameraX (giả sử bạn đã khai báo biến cameraxVersion trong Kotlin DSL như sau:)
+    implementation("androidx.camera:camera-core:$cameraxVersion")
+    implementation("androidx.camera:camera-camera2:$cameraxVersion")
+    implementation("androidx.camera:camera-lifecycle:$cameraxVersion")
+    implementation("androidx.camera:camera-view:$cameraxVersion")
+
+// Accompanist
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.17.0")
+    implementation("com.google.accompanist:accompanist-permissions:0.24.3-alpha")
+
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
+
+    //Face detection introduced in ML Kit
+    implementation("com.google.android.gms:play-services-mlkit-face-detection:17.1.0")
+    implementation("com.google.android.gms:play-services-vision:20.1.3")
+
+    // Testing
+    testImplementation("junit:junit:4.13.2")
+    androidTestImplementation("androidx.test.ext:junit:1.1.3")
+    androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.5.0")
+
+// Compose debug tools (giả sử bạn đã khai báo biến composeVersion)
+
+    debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
 
 }

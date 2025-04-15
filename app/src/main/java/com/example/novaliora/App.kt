@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.novaliora.ui.screen.DangerWarningScreen
+import com.example.novaliora.ui.screen.ExploreScreen
 import com.example.novaliora.ui.screen.DetectionScreen
 import com.example.novaliora.ui.screen.FaceRecognitionScreen
 import com.example.novaliora.ui.screen.MoodTrackingScreen
@@ -36,7 +36,7 @@ fun App(cameraExecutor: ExecutorService, yuvToRgbConverter: YuvToRgbConverter, i
 
     val pagerState = rememberPagerState()
     val screens = listOf(
-        R.string.detection, R.string.danger_warning, R.string.mood_tracking, R.string.face_recognition
+        R.string.detection, R.string.explore, R.string.mood_tracking, R.string.face_recognition
     )
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -51,11 +51,7 @@ fun App(cameraExecutor: ExecutorService, yuvToRgbConverter: YuvToRgbConverter, i
                     interpreter = interpreter,
                     labels = labels,
                     textToSpeech = textToSpeech)
-                1 -> DangerWarningScreen(cameraExecutor = cameraExecutor,
-                    yuvToRgbConverter = yuvToRgbConverter,
-                    interpreter = interpreter,
-                    labels = labels,
-                    textToSpeech = textToSpeech)
+                1 -> ExploreScreen()
                 2 -> MoodTrackingScreen(cameraExecutor = cameraExecutor)
                 3 -> FaceRecognitionScreen(cameraExecutor = cameraExecutor)
             }

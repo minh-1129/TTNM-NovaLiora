@@ -11,7 +11,7 @@ import androidx.camera.core.ImageCapture.FLASH_MODE_ON
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import com.example.novaliora.Data.repository.CustomCameraRepoImpl
-import com.example.novaliora.domain.repository.CustomCameraRepo
+import com.example.novaliora.domain.CustomCameraRepo
 import com.example.novaliora.features.face_recognition.FaceNetModel
 import dagger.Module
 import dagger.Provides

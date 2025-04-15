@@ -12,6 +12,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.novaliora.features.face_recognition.FaceNetModel
 import com.example.novaliora.features.object_detection.YuvToRgbConverter
 import com.example.novaliora.ui.theme.NovaLioraTheme
+import dagger.hilt.android.AndroidEntryPoint
 import org.tensorflow.lite.Interpreter
 import java.io.BufferedReader
 import java.io.FileInputStream
@@ -24,6 +25,8 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 const val DragThreshold = 30f
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var textToSpeech: TextToSpeech

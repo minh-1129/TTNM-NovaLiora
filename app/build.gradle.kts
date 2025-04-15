@@ -9,7 +9,8 @@ plugins {
 
 extra.set("camerax_version", "1.3.0")
 extra.set("compose_version", "1.5.7")
-
+val cameraxVersion = extra["camerax_version"] as String
+val composeVersion = extra["compose_version"] as String
 android {
     namespace = "com.example.novaliora"
     compileSdk = 35
@@ -22,6 +23,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables {
+            useSupportLibrary = true
+        }
     }
 
     buildTypes {
@@ -40,16 +44,28 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+
+
+
     buildFeatures {
         compose = true
+        mlModelBinding = true
     }
 
+    composeOptions {
+        kotlinCompilerExtensionVersion = composeVersion
+    }
 
-
-
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        }
+    }
+    aaptOptions {
+        noCompress += "tflite"
+    }
 }
-val cameraxVersion = extra["camerax_version"] as String
-val composeVersion = extra["compose_version"] as String
+
 
 
 dependencies {
@@ -73,8 +89,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation ("com.google.accompanist:accompanist-pager:0.34.0")
     implementation ("com.google.accompanist:accompanist-pager-indicators:0.34.0")
+
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
@@ -84,6 +102,8 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+
+    implementation("org.tensorflow:tensorflow-lite-metadata:0.1.0")
 
 // TensorFlow Lite
     implementation("org.tensorflow:tensorflow-lite-support:0.4.0")
@@ -99,6 +119,8 @@ dependencies {
 // Accompanist
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.17.0")
     implementation("com.google.accompanist:accompanist-permissions:0.24.3-alpha")
+
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
 
     implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
@@ -117,5 +139,11 @@ dependencies {
 
     debugImplementation("androidx.compose.ui:ui-tooling:$composeVersion")
     debugImplementation("androidx.compose.ui:ui-test-manifest:$composeVersion")
+
+
+    implementation("androidx.compose.compiler:compiler:$composeVersion")
+    implementation("androidx.compose.material:material:1.7.5")
+
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
 
 }

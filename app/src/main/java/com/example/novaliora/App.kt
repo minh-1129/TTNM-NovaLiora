@@ -1,6 +1,7 @@
 package com.example.novaliora
 
 
+import android.speech.tts.TextToSpeech
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,11 +15,25 @@ import com.example.novaliora.ui.screen.MoodTrackingScreen
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
+import com.example.novaliora.features.object_detection.YuvToRgbConverter
+import com.example.novaliora.ui.screen.CameraPermission
 import com.google.accompanist.pager.*
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import org.tensorflow.lite.Interpreter
+import java.util.concurrent.ExecutorService
 
-@OptIn(ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalPermissionsApi::class)
 @Composable
-fun App() {
+fun App(cameraExecutor: ExecutorService, yuvToRgbConverter: YuvToRgbConverter, interpreter: Interpreter, labels: List<String>, textToSpeech: TextToSpeech) {
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+
+    if (cameraPermissionState.status.isGranted) {
+    } else {
+        CameraPermission(cameraPermissionState)
+    }
+
     val pagerState = rememberPagerState()
     val screens = listOf(
         R.string.detection, R.string.danger_warning, R.string.mood_tracking, R.string.face_recognition
@@ -31,10 +46,18 @@ fun App() {
             modifier = Modifier.weight(1f)
         ) { page ->
             when (page) {
-                0 -> DetectionScreen()
-                1 -> DangerWarningScreen()
-                2 -> MoodTrackingScreen()
-                3 -> FaceRecognitionScreen()
+                0 -> DetectionScreen(cameraExecutor = cameraExecutor,
+                    yuvToRgbConverter = yuvToRgbConverter,
+                    interpreter = interpreter,
+                    labels = labels,
+                    textToSpeech = textToSpeech)
+                1 -> DangerWarningScreen(cameraExecutor = cameraExecutor,
+                    yuvToRgbConverter = yuvToRgbConverter,
+                    interpreter = interpreter,
+                    labels = labels,
+                    textToSpeech = textToSpeech)
+                2 -> MoodTrackingScreen(cameraExecutor = cameraExecutor)
+                3 -> FaceRecognitionScreen(cameraExecutor = cameraExecutor)
             }
         }
 

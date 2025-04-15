@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">NovaLiora</string>
-    <string name="detection">detection</string>
-    <string name="danger_warning">danger_warning</string>
-    <string name="explore">explore</string>
+    <string name="detection">Detection</string>
+    <string name="danger_warning">Danger Warning</string>
+    <string name="explore">Explore</string>
+    <string name="mood_tracking">Mood Tracking</string>
+    <string name="face_recognition">Face Recognition</string>
 </resources>

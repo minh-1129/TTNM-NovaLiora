@@ -13,7 +13,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.example.amobileappfordisabledpeople.domain.repository.CustomCameraRepo
+import com.example.novaliora.domain.CustomCameraRepo
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale

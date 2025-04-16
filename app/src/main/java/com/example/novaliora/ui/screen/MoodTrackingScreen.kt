@@ -1,6 +1,7 @@
 package com.example.novaliora.ui.screen
 
 
+import android.annotation.SuppressLint
 import android.graphics.PointF
 import android.media.MediaPlayer
 import androidx.camera.core.ImageAnalysis
@@ -34,6 +35,7 @@ import com.example.novaliora.utils.drawBounds
 import com.google.mlkit.vision.face.Face
 import java.util.concurrent.ExecutorService
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MoodTrackingScreen(
     cameraExecutor: ExecutorService,
@@ -41,11 +43,10 @@ fun MoodTrackingScreen(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    var previewView: PreviewView
+    val previewView = remember { PreviewView(context) }
 
     val screenWidth = remember { mutableStateOf(context.resources.displayMetrics.widthPixels) }
     val screenHeight = remember { mutableStateOf(context.resources.displayMetrics.heightPixels) }
-
 
     val imageWidth = remember { mutableStateOf(0) }
     val imageHeight = remember { mutableStateOf(0) }
@@ -60,25 +61,15 @@ fun MoodTrackingScreen(
 
     DisposableEffect(Unit) {
         onDispose {
-            moodTrackSound.stop()
-            happySound.stop()
-            upsetSound.stop()
-
             moodTrackSound.release()
             happySound.release()
             upsetSound.release()
-
             moodTrackingViewModel.releaseCamera()
         }
     }
 
     val faces = remember { mutableStateListOf<Face>() }
-
     val mood = remember { mutableStateOf<MoodState>(MoodState.Normal) }
-
-    LaunchedEffect(faces) {
-        mood.value = MoodState.Normal
-    }
 
     val faceDetectionAnalyzer = FaceDetectionAnalyzer { detectedFace, width, height ->
         faces.clear()
@@ -87,56 +78,42 @@ fun MoodTrackingScreen(
         imageHeight.value = height
     }
 
-    val imageAnalysis = ImageAnalysis.Builder()
-        .setTargetRotation(android.view.Surface.ROTATION_0)
-        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-        .build()
-        .also {
-            it.setAnalyzer(cameraExecutor, faceDetectionAnalyzer)
-        }
+    val imageAnalysis = remember {
+        ImageAnalysis.Builder()
+            .setTargetRotation(android.view.Surface.ROTATION_0)
+            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+            .build().apply {
+                setAnalyzer(cameraExecutor, faceDetectionAnalyzer)
+            }
+    }
 
-    moodTrackingViewModel.initRepo(imageAnalysis)
+    LaunchedEffect(Unit) {
+        moodTrackingViewModel.initRepo(imageAnalysis)
+        moodTrackingViewModel.showCameraPreview(previewView, lifecycleOwner)
+    }
 
-    Scaffold(
-        modifier = Modifier.pointerInput(Unit) {
-        },
-    ) {
-        Box(
-            modifier = Modifier.fillMaxSize()
-        ) {
+    Scaffold {
+        Box(modifier = Modifier.fillMaxSize()) {
             AndroidView(
-                factory = {
-                    previewView = PreviewView(it)
-                    moodTrackingViewModel.showCameraPreview(previewView = previewView, lifecycleOwner = lifecycleOwner)
-                    previewView
-                },
+                factory = { previewView },
                 modifier = Modifier.fillMaxSize()
                     .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                when (mood.value) {
-                                    is MoodState.Happy -> {
-                                        happySound.start()
-                                    }
-                                    is MoodState.Sad -> {
-                                        upsetSound.start()
-                                    }
-                                    else -> {}
-                                }
+                        detectTapGestures {
+                            when (mood.value) {
+                                is MoodState.Happy -> happySound.start()
+                                is MoodState.Sad -> upsetSound.start()
+                                else -> {}
                             }
-                        )
+                        }
                     }
             )
-            DrawFaces(faces, imageHeight.value, imageWidth.value, screenWidth.value, screenHeight.value, updateEmotionState = { smile, upset ->
-                if (smile > 0.9) {
-                    mood.value = MoodState.Happy
-                } else {
-                    mood.value = MoodState.Normal
-                }
-            })
+            DrawFaces(faces, imageHeight.value, imageWidth.value, screenWidth.value, screenHeight.value) { smile, upset ->
+                mood.value = if (smile > 0.9f) MoodState.Happy else MoodState.Normal
+            }
         }
     }
 }
+
 
 @Composable
 fun DrawFaces(faces: List<Face>, imageWidth: Int, imageHeight: Int, screenWidth: Int, screenHeight: Int, updateEmotionState: (Float, Float) -> Unit) {

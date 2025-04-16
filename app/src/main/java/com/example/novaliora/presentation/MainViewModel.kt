@@ -46,6 +46,7 @@ open class MainViewModel @Inject constructor(
         lifecycleOwner: LifecycleOwner,
     ) {
         viewModelScope.launch {
+            cameraProvider.unbindAll()
             repo.showCameraPreview(
                 previewView = previewView,
                 lifecycleOwner = lifecycleOwner

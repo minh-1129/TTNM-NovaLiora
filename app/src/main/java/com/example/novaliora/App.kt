@@ -13,6 +13,7 @@ import com.example.novaliora.ui.screen.FaceRecognitionScreen
 import com.example.novaliora.ui.screen.MoodTrackingScreen
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.icons.Icons
@@ -23,9 +24,12 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import com.example.novaliora.features.object_detection.YuvToRgbConverter
 import com.example.novaliora.ui.screen.CameraPermission
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import com.google.accompanist.pager.*
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
@@ -54,20 +58,59 @@ fun App(cameraExecutor: ExecutorService, yuvToRgbConverter: YuvToRgbConverter, i
         Screen("Face", Icons.Default.Face)
     )
 
+    val selectedColor = Color(0xFF4CAF50)
+    val unselectedColor = Color(0xFF9E9E9E)
+    val backgroundColor = Color(0xFFFFFFFF)
+
     Scaffold(
         bottomBar = {
-            BottomNavigation {
-                screens.forEachIndexed { index, screen ->
-                    BottomNavigationItem(
-                        icon = { Icon(screen.icon, contentDescription = screen.title) },
-                        label = { Text(screen.title) },
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(index)
-                            }
-                        }
-                    )
+            Surface(
+                color = backgroundColor,
+                tonalElevation = 8.dp,
+                shadowElevation = 12.dp,
+                shape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 6.dp)
+            ) {
+                NavigationBar(
+                    containerColor = backgroundColor,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(78.dp)
+                        .padding(horizontal = 8.dp)
+                ) {
+                    screens.forEachIndexed { index, screen ->
+                        NavigationBarItem(
+                            icon = {
+                                Icon(
+                                    imageVector = screen.icon,
+                                    contentDescription = screen.title,
+                                    modifier = Modifier.size(30.dp)
+                                )
+                            },
+                            label = {
+                                Text(
+                                    screen.title,
+                                    fontSize = 13.sp,
+                                    fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Normal
+                                )
+                            },
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = selectedColor,
+                                unselectedIconColor = unselectedColor,
+                                selectedTextColor = selectedColor,
+                                unselectedTextColor = unselectedColor,
+                                indicatorColor = Color(0x114CAF50)
+                            )
+                        )
+                    }
                 }
             }
         }

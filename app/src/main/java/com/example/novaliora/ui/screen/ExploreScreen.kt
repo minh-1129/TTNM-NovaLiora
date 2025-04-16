@@ -105,6 +105,8 @@ fun ExploreScreen(
             newPictureSound.release()
 
             textToSpeech?.shutdown()
+
+            mainViewModel.releaseCamera()
         }
     }
 

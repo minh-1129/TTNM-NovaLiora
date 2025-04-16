@@ -49,7 +49,7 @@ fun App(cameraExecutor: ExecutorService, yuvToRgbConverter: YuvToRgbConverter, i
 
     val screens = listOf(
         Screen("Detection", Icons.Default.Search),
-        Screen("Danger", Icons.Default.Warning),
+        Screen("Explore", Icons.Default.Warning),
         Screen("Mood", Icons.Default.CheckCircle),
         Screen("Face", Icons.Default.Face)
     )

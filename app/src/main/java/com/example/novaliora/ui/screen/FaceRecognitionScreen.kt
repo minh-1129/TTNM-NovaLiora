@@ -83,6 +83,7 @@ fun FaceRecognitionScreen(
             recognitionSound.stop()
             recognitionSound.release()
             textToSpeech?.shutdown()
+            viewModel.releaseCamera()
         }
     }
 

@@ -67,6 +67,8 @@ fun MoodTrackingScreen(
             moodTrackSound.release()
             happySound.release()
             upsetSound.release()
+
+            moodTrackingViewModel.releaseCamera()
         }
     }
 

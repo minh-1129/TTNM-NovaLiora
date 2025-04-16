@@ -66,4 +66,8 @@ open class MainViewModel @Inject constructor(
     fun updateCapturedImageUri(uri: Uri) {
         capturedImageUri.value = uri
     }
+
+    fun releaseCamera() {
+        cameraProvider.unbindAll()
+    }
 }

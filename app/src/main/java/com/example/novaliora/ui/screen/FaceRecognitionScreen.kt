@@ -27,9 +27,11 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.novaliora.AppBar
 import com.example.novaliora.ApplicationViewModel
 import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
@@ -37,6 +39,8 @@ import com.example.novaliora.SocializingModeBar
 import com.example.novaliora.features.face_recognition.FaceNetModel
 import com.example.novaliora.features.face_recognition.FaceRecognitionAnalyzer
 import com.example.novaliora.presentation.MainViewModel
+import com.example.novaliora.ui.navigation.FaceRecognition
+import com.example.novaliora.ui.navigation.MoodTrackingDestination
 import com.example.novaliora.utils.adjustPoint
 import com.example.novaliora.utils.adjustSize
 import com.example.novaliora.utils.drawBounds
@@ -123,9 +127,9 @@ fun FaceRecognitionScreen(
                         if (abs(dragAmount.x) > DragThreshold) {
                             hasNavigated = true
                             if (dragAmount.x > 0) {
-                                navigateToRight()
-                            } else {
                                 navigateToLeft()
+                            } else {
+                                navigateToRight()
                             }
                         }
                     }
@@ -133,7 +137,7 @@ fun FaceRecognitionScreen(
             )
         },
         topBar = {
-            SocializingModeBar(destinationName = "Face Recognition")
+            AppBar(destinationName = stringResource(FaceRecognition.titleRes))
         }
     ) {
         Box(

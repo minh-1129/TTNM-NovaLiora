@@ -112,9 +112,9 @@ fun DetectionScreen(
                         if (abs(dragAmount.x) > DragThreshold) {
                             hasNavigated = true
                             if (dragAmount.x > 0) {
-                                navigateToRight()
-                            } else {
                                 navigateToLeft()
+                            } else {
+                                navigateToRight()
                             }
                         }
                     }

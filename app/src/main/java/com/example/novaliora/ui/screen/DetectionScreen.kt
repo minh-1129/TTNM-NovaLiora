@@ -9,13 +9,23 @@ import android.util.Size
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -32,20 +42,31 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.LifecycleOwner
+import com.example.novaliora.AppBar
+import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
 import com.example.novaliora.features.object_detection.ObjectDetector
 import com.example.novaliora.features.object_detection.YuvToRgbConverter
 import com.example.novaliora.presentation.MainViewModel
+import com.example.novaliora.ui.navigation.DetectionDestination
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionState
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import kotlinx.coroutines.delay
 import org.tensorflow.lite.Interpreter
 import java.util.concurrent.ExecutorService
+import kotlin.math.abs
+import kotlin.text.toLong
+import kotlin.times
 
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -56,6 +77,9 @@ fun DetectionScreen(
     interpreter: Interpreter,
     labels: List<String>,
     textToSpeech: TextToSpeech,
+    navigateToDangerWarning: () -> Unit = {},
+    navigateToExplore: () -> Unit = {},
+    navigateToSocializingMode: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -78,8 +102,27 @@ fun DetectionScreen(
 
     Scaffold(
         modifier = Modifier.pointerInput(Unit) {
-
+            detectDragGestures(
+                onDrag = { change, dragAmount ->
+                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                        if (abs(dragAmount.x) > DragThreshold) {
+                            if (dragAmount.x > 0) {
+                                navigateToExplore()
+                            } else {
+                                navigateToDangerWarning()
+                            }
+                        }
+                    } else {
+                        if (abs(dragAmount.y) > DragThreshold) {
+                            navigateToSocializingMode()
+                        }
+                    }
+                }
+            )
         },
+        topBar = {
+            AppBar(destinationName = stringResource(DetectionDestination.titleRes))
+        }
     ) { innerPadding ->
         if (cameraPermissionState.status.isGranted) {
             OpenCamera(
@@ -254,6 +297,40 @@ fun CameraPreview(
                     }
                 }
             )
+        }
+    }
+}
+
+
+//----------------------------- PERMISSION --------------------------------------
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+private fun Permission(
+    cameraPermissionState: PermissionState
+) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        if (!cameraPermissionState.status.isGranted) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally) {
+
+                val textToShow = if (cameraPermissionState.status.shouldShowRationale) {
+                    "The camera is important for this app.\n Please grant the permission."
+                } else {
+                    "Camera not available"
+                }
+                Text(textToShow, textAlign = TextAlign.Center, color = MaterialTheme.colors.onSurface)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Button(
+                    shape = CircleShape,
+                    onClick = { cameraPermissionState.launchPermissionRequest() }) {
+                    Text("Request permission")
+                    Icon(
+                        painterResource(id = R.drawable.ic_baseline_camera_24),
+                        contentDescription = "Icon camera", modifier = Modifier.padding(start = 8.dp))
+                }
+            }
         }
     }
 }

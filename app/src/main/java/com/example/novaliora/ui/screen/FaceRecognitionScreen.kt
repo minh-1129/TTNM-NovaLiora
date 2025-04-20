@@ -8,6 +8,7 @@ import android.speech.tts.TextToSpeech
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -30,7 +31,9 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.novaliora.ApplicationViewModel
+import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
+import com.example.novaliora.SocializingModeBar
 import com.example.novaliora.features.face_recognition.FaceNetModel
 import com.example.novaliora.features.face_recognition.FaceRecognitionAnalyzer
 import com.example.novaliora.presentation.MainViewModel
@@ -41,12 +44,16 @@ import com.google.mlkit.vision.face.Face
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import kotlin.collections.forEach
+import kotlin.math.abs
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FaceRecognitionScreen(
     cameraExecutor: ExecutorService,
-    viewModel: MainViewModel = hiltViewModel()
+    viewModel: MainViewModel = hiltViewModel(),
+    navigateToMoodTracking: () -> Unit = {},
+    navigateToExploreMode: () -> Unit = {}
+
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -107,7 +114,22 @@ fun FaceRecognitionScreen(
 
     Scaffold(
         modifier = Modifier.pointerInput(Unit) {
-
+            detectDragGestures(
+                onDrag = { change, dragAmount ->
+                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                        if (abs(dragAmount.x) > DragThreshold) {
+                            navigateToMoodTracking()
+                        }
+                    } else {
+                        if (abs(dragAmount.y) > DragThreshold) {
+                            navigateToExploreMode()
+                        }
+                    }
+                }
+            )
+        },
+        topBar = {
+            SocializingModeBar(destinationName = "Face Recognition")
         }
     ) {
         Box(

@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,6 +49,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,20 +59,26 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.example.novaliora.AppBar
 import com.example.novaliora.Data.CoordinatesModelRepoImpl
 import com.example.novaliora.Data.RequestModel
+import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
 import com.example.novaliora.SpeechRecognizerContract
 import com.example.novaliora.presentation.MainViewModel
 import com.example.novaliora.presentation.SpeechRecognizerViewModel
+import com.example.novaliora.ui.navigation.ExploreDestination
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import java.util.Locale
+import kotlin.math.abs
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ExploreScreen(
+fun ExploreScreen(navigateToDangerWarning: () -> Unit = {},
+                  navigateToDetection: () -> Unit = {},
+                  navigateToSocializingMode: () -> Unit = {},
                   mainViewModel: MainViewModel = hiltViewModel(),
                   speechRecognizerViewModel: SpeechRecognizerViewModel = viewModel()
 ) {
@@ -188,8 +196,28 @@ fun ExploreScreen(
         },
 
         modifier = Modifier.pointerInput(Unit) {
+            detectDragGestures(
+                onDrag = { change, dragAmount ->
+                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                        if (abs(dragAmount.x) > DragThreshold) {
+                            if (dragAmount.x > 0) {
+                                navigateToDangerWarning()
+                            } else {
+                                navigateToDetection()
+                            }
+                        }
+                    } else {
+                        if (abs(dragAmount.y) > DragThreshold) {
+                            navigateToSocializingMode()
+                        }
+                    }
+                }
+            )
         },
 
+        topBar = {
+            AppBar(destinationName = stringResource(ExploreDestination.titleRes))
+        }
     ) { it ->
         Column(
             modifier = Modifier
@@ -363,4 +391,3 @@ private fun ImageWithBoundingBox(
         }
     }
 }
-

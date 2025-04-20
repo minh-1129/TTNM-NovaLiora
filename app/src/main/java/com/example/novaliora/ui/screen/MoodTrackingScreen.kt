@@ -1,11 +1,13 @@
 package com.example.novaliora.ui.screen
 
 
+import android.annotation.SuppressLint
 import android.graphics.PointF
 import android.media.MediaPlayer
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +27,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
+import com.example.novaliora.SocializingModeBar
 import com.example.novaliora.features.face_detection.FaceDetectionAnalyzer
 import com.example.novaliora.presentation.MainViewModel
 import com.example.novaliora.utils.adjustPoint
@@ -33,11 +37,15 @@ import com.example.novaliora.utils.adjustSize
 import com.example.novaliora.utils.drawBounds
 import com.google.mlkit.vision.face.Face
 import java.util.concurrent.ExecutorService
+import kotlin.math.abs
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MoodTrackingScreen(
     cameraExecutor: ExecutorService,
     moodTrackingViewModel: MainViewModel = hiltViewModel(),
+    navigateToFaceRecognition: () -> Unit = {},
+    navigateToExploreMode: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -97,7 +105,23 @@ fun MoodTrackingScreen(
 
     Scaffold(
         modifier = Modifier.pointerInput(Unit) {
+            detectDragGestures(
+                onDrag = { change, dragAmount ->
+                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                        if (abs(dragAmount.x) > DragThreshold) {
+                            navigateToFaceRecognition()
+                        }
+                    } else {
+                        if (abs(dragAmount.y) > DragThreshold) {
+                            navigateToExploreMode()
+                        }
+                    }
+                }
+            )
         },
+        topBar = {
+            SocializingModeBar(destinationName = "Mood Tracking")
+        }
     ) {
         Box(
             modifier = Modifier.fillMaxSize()

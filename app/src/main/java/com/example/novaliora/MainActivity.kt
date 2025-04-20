@@ -7,11 +7,17 @@ import android.speech.tts.TextToSpeech
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Surface
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.novaliora.features.face_recognition.FaceNetModel
 import com.example.novaliora.features.object_detection.YuvToRgbConverter
 import com.example.novaliora.ui.theme.NovaLioraTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import org.tensorflow.lite.Interpreter
 import java.io.BufferedReader
@@ -30,7 +36,7 @@ const val DragThreshold = 30f
 class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var textToSpeech: TextToSpeech
-
+    //------------------------  onCreate ----------------------------------
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -38,24 +44,37 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
         textToSpeech = TextToSpeech(this, this)
 
         setContent {
+            val systemUiController = rememberSystemUiController()
+
+            if(isSystemInDarkTheme()){
+                systemUiController.setNavigationBarColor(Color.Black, darkIcons = false)
+                systemUiController.setStatusBarColor(Color.Black, darkIcons = false)
+            }
+
             // Initialize ExecutorService for camera preview in another thread
             cameraExecutor = Executors.newSingleThreadExecutor()
 
             NovaLioraTheme {
-                val applicationViewModel: ApplicationViewModel = hiltViewModel()
+                Surface(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    val applicationViewModel: ApplicationViewModel = hiltViewModel()
 
-                LaunchedEffect(Unit) {
-                    applicationViewModel.faceNetModel
+                    LaunchedEffect(Unit) {
+                        applicationViewModel.faceNetModel
+                    }
+                    App(cameraExecutor = cameraExecutor,
+                        yuvToRgbConverter = yuvToRgbConverter,
+                        interpreter = interpreter,
+                        labels = labels,
+                        textToSpeech = textToSpeech
+                    )
+//                    FaceRecognitionScreen(cameraExecutor)
                 }
-                App(cameraExecutor = cameraExecutor,
-                    yuvToRgbConverter = yuvToRgbConverter,
-                    interpreter = interpreter,
-                    labels = labels,
-                    textToSpeech = textToSpeech
-                )
             }
         }
     }
+    //------------------------Fin  onCreate --------------------------------
 
     //Implements TextToSpeech.OnInitListener
     override fun onInit(status: Int) {
@@ -83,7 +102,9 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     //----------------------------------------------------------------------//
     companion object {
         private const val MODEL_MOBILENETV1 = "mobilenetv1.tflite"
-
+        private const val MODEL_EFFICIENTDETV0 = "efficientdet-lite0.tflite"
+        private const val MODEL_EFFICIENTDETV1 = "efficientdet-lite1.tflite"
+        private const val MODEL_EFFICIENTDETV2 = "efficientdet-lite2.tflite"
 
         //private const val MODEL_FILE_NAME = "ssd_mobilenet_v1_1_metadata_1.tflite"
 
@@ -96,8 +117,6 @@ class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
 
 
     private lateinit var cameraExecutor: ExecutorService
-
-
     //Call load model function
     private val interpreter: Interpreter by lazy {
         Interpreter(loadModel())

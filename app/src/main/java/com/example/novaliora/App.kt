@@ -1,73 +1,113 @@
 package com.example.novaliora
 
-
 import android.speech.tts.TextToSpeech
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.example.novaliora.ui.screen.ExploreScreen
-import com.example.novaliora.ui.screen.DetectionScreen
-import com.example.novaliora.ui.screen.FaceRecognitionScreen
-import com.example.novaliora.ui.screen.MoodTrackingScreen
-
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.ui.Alignment
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.novaliora.features.object_detection.YuvToRgbConverter
-import com.example.novaliora.ui.screen.CameraPermission
-import com.google.accompanist.pager.*
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.isGranted
-import com.google.accompanist.permissions.rememberPermissionState
+import com.example.novaliora.ui.navigation.ApplicationNavHost
 import org.tensorflow.lite.Interpreter
 import java.util.concurrent.ExecutorService
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalPermissionsApi::class)
 @Composable
-fun App(cameraExecutor: ExecutorService, yuvToRgbConverter: YuvToRgbConverter, interpreter: Interpreter, labels: List<String>, textToSpeech: TextToSpeech) {
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-
-    if (cameraPermissionState.status.isGranted) {
-    } else {
-        CameraPermission(cameraPermissionState)
+fun AppBar(
+    destinationName: String,
+    modifier: Modifier = Modifier,
+) {
+    var selectedTabIndex = 0
+    if (destinationName == stringResource(R.string.detection)) {
+        selectedTabIndex = 0
+    } else if (destinationName == stringResource(R.string.explore)) {
+        selectedTabIndex = 1
     }
 
-    val pagerState = rememberPagerState()
-    val screens = listOf(
-        R.string.detection, R.string.explore, R.string.mood_tracking, R.string.face_recognition
-    )
+    val tabs = listOf("OBJECT DETECTION", "EXPLORE")
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        HorizontalPager(
-            count = screens.size,
-            state = pagerState,
-            modifier = Modifier.weight(1f)
-        ) { page ->
-            when (page) {
-                0 -> DetectionScreen(cameraExecutor = cameraExecutor,
-                    yuvToRgbConverter = yuvToRgbConverter,
-                    interpreter = interpreter,
-                    labels = labels,
-                    textToSpeech = textToSpeech)
-                1 -> ExploreScreen()
-                2 -> MoodTrackingScreen(cameraExecutor = cameraExecutor)
-                3 -> FaceRecognitionScreen(cameraExecutor = cameraExecutor)
-            }
+    TabRow(
+        selectedTabIndex = selectedTabIndex,
+        backgroundColor = Color.White,
+        contentColor = Color.Black,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                color = Color.Black,
+                height = 4.dp
+            )
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedTabIndex == index,
+                onClick = { /**/ },
+                text = {
+                    Text(
+                        text = title,
+                        color = if (selectedTabIndex == index) Color.Black else Color.Gray,
+                        style = MaterialTheme.typography.subtitle2
+                    )
+                }
+            )
         }
-
-        HorizontalPagerIndicator(
-            pagerState = pagerState,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(16.dp)
-        )
-
-        Text(
-            text = stringResource(id = screens[pagerState.currentPage]),
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
     }
+}
+
+@Composable
+fun SocializingModeBar(
+    destinationName: String,
+    modifier: Modifier = Modifier,
+) {
+    var selectedTabIndex = 0
+    if (destinationName == stringResource(R.string.mood_tracking)) {
+        selectedTabIndex = 0
+    } else if (destinationName == stringResource(R.string.face_recognition)) {
+        selectedTabIndex = 1
+    }
+
+    val tabs = listOf("MOOD TRACKING", "FACE RECOGNITION")
+
+    TabRow(
+        selectedTabIndex = selectedTabIndex,
+        backgroundColor = Color.White,
+        contentColor = Color.Black,
+        indicator = { tabPositions ->
+            TabRowDefaults.Indicator(
+                modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
+                color = Color.Black,
+                height = 4.dp
+            )
+        },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        tabs.forEachIndexed { index, title ->
+            Tab(
+                selected = selectedTabIndex == index,
+                onClick = { /**/ },
+                text = {
+                    Text(
+                        text = title,
+                        color = if (selectedTabIndex == index) Color.Black else Color.Gray,
+                        style = MaterialTheme.typography.subtitle2
+                    )
+                }
+            )
+        }
+    }
+}
+
+
+@Composable
+fun App(navHostController: NavHostController = rememberNavController(), cameraExecutor: ExecutorService, yuvToRgbConverter: YuvToRgbConverter, interpreter: Interpreter, labels: List<String>, textToSpeech: TextToSpeech) {
+    ApplicationNavHost(navController = navHostController, cameraExecutor = cameraExecutor, yuvToRgbConverter = yuvToRgbConverter, interpreter = interpreter, labels = labels, textToSpeech = textToSpeech)
 }

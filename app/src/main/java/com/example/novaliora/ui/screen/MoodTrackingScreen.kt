@@ -15,9 +15,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
@@ -44,8 +46,8 @@ import kotlin.math.abs
 fun MoodTrackingScreen(
     cameraExecutor: ExecutorService,
     moodTrackingViewModel: MainViewModel = hiltViewModel(),
-    navigateToFaceRecognition: () -> Unit = {},
-    navigateToExploreMode: () -> Unit = {}
+    navigateToLeft: () -> Unit = {},
+    navigateToRight: () -> Unit = {},
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -102,18 +104,22 @@ fun MoodTrackingScreen(
         }
 
     moodTrackingViewModel.initRepo(imageAnalysis)
-
+    var hasNavigated by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.pointerInput(Unit) {
             detectDragGestures(
+                onDragStart = {
+                    hasNavigated = false // Reset khi bắt đầu kéo
+                },
                 onDrag = { change, dragAmount ->
-                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                    if (!hasNavigated && abs(dragAmount.x) > abs(dragAmount.y)) {
                         if (abs(dragAmount.x) > DragThreshold) {
-                            navigateToFaceRecognition()
-                        }
-                    } else {
-                        if (abs(dragAmount.y) > DragThreshold) {
-                            navigateToExploreMode()
+                            hasNavigated = true
+                            if (dragAmount.x > 0) {
+                                navigateToRight()
+                            } else {
+                                navigateToLeft()
+                            }
                         }
                     }
                 }

@@ -51,8 +51,8 @@ import kotlin.math.abs
 fun FaceRecognitionScreen(
     cameraExecutor: ExecutorService,
     viewModel: MainViewModel = hiltViewModel(),
-    navigateToMoodTracking: () -> Unit = {},
-    navigateToExploreMode: () -> Unit = {}
+    navigateToLeft: () -> Unit = {},
+    navigateToRight: () -> Unit = {},
 
 ) {
     val context = LocalContext.current
@@ -111,18 +111,22 @@ fun FaceRecognitionScreen(
         }
 
     viewModel.initRepo(imageAnalysis)
-
+    var hasNavigated by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.pointerInput(Unit) {
             detectDragGestures(
+                onDragStart = {
+                    hasNavigated = false // Reset khi bắt đầu kéo
+                },
                 onDrag = { change, dragAmount ->
-                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                    if (!hasNavigated && abs(dragAmount.x) > abs(dragAmount.y)) {
                         if (abs(dragAmount.x) > DragThreshold) {
-                            navigateToMoodTracking()
-                        }
-                    } else {
-                        if (abs(dragAmount.y) > DragThreshold) {
-                            navigateToExploreMode()
+                            hasNavigated = true
+                            if (dragAmount.x > 0) {
+                                navigateToRight()
+                            } else {
+                                navigateToLeft()
+                            }
                         }
                     }
                 }

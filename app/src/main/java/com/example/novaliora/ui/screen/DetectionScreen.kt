@@ -30,7 +30,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -77,9 +79,8 @@ fun DetectionScreen(
     interpreter: Interpreter,
     labels: List<String>,
     textToSpeech: TextToSpeech,
-    navigateToDangerWarning: () -> Unit = {},
-    navigateToExplore: () -> Unit = {},
-    navigateToSocializingMode: () -> Unit = {},
+    navigateToLeft: () -> Unit = {},
+    navigateToRight: () -> Unit = {},
 ) {
 
     val context = LocalContext.current
@@ -99,22 +100,22 @@ fun DetectionScreen(
     }
 
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-
+    var hasNavigated by remember { mutableStateOf(false) }
     Scaffold(
         modifier = Modifier.pointerInput(Unit) {
             detectDragGestures(
+                onDragStart = {
+                    hasNavigated = false // Reset khi bắt đầu kéo
+                },
                 onDrag = { change, dragAmount ->
-                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                    if (!hasNavigated && abs(dragAmount.x) > abs(dragAmount.y)) {
                         if (abs(dragAmount.x) > DragThreshold) {
+                            hasNavigated = true
                             if (dragAmount.x > 0) {
-                                navigateToExplore()
+                                navigateToRight()
                             } else {
-                                navigateToDangerWarning()
+                                navigateToLeft()
                             }
-                        }
-                    } else {
-                        if (abs(dragAmount.y) > DragThreshold) {
-                            navigateToSocializingMode()
                         }
                     }
                 }

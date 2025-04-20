@@ -76,9 +76,8 @@ import kotlin.math.abs
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ExploreScreen(navigateToDangerWarning: () -> Unit = {},
-                  navigateToDetection: () -> Unit = {},
-                  navigateToSocializingMode: () -> Unit = {},
+fun ExploreScreen(navigateToLeft: () -> Unit = {},
+                  navigateToRight: () -> Unit = {},
                   mainViewModel: MainViewModel = hiltViewModel(),
                   speechRecognizerViewModel: SpeechRecognizerViewModel = viewModel()
 ) {
@@ -181,7 +180,7 @@ fun ExploreScreen(navigateToDangerWarning: () -> Unit = {},
             else -> {}
         }
     }
-
+    var hasNavigated by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = Color.Black,
@@ -197,18 +196,18 @@ fun ExploreScreen(navigateToDangerWarning: () -> Unit = {},
 
         modifier = Modifier.pointerInput(Unit) {
             detectDragGestures(
+                onDragStart = {
+                    hasNavigated = false // Reset khi bắt đầu kéo
+                },
                 onDrag = { change, dragAmount ->
-                    if (abs(dragAmount.x) > abs(dragAmount.y)) {
+                    if (!hasNavigated && abs(dragAmount.x) > abs(dragAmount.y)) {
                         if (abs(dragAmount.x) > DragThreshold) {
+                            hasNavigated = true
                             if (dragAmount.x > 0) {
-                                navigateToDangerWarning()
+                                navigateToRight()
                             } else {
-                                navigateToDetection()
+                                navigateToLeft()
                             }
-                        }
-                    } else {
-                        if (abs(dragAmount.y) > DragThreshold) {
-                            navigateToSocializingMode()
                         }
                     }
                 }

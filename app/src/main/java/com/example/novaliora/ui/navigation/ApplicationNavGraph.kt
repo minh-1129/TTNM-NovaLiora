@@ -49,30 +49,28 @@ fun ApplicationNavHost(
                 interpreter = interpreter,
                 labels = labels,
                 textToSpeech = textToSpeech,
-                navigateToDangerWarning = {navController.navigate(ExploreDestination.route)},
-                navigateToExplore = {navController.navigate(ExploreDestination.route)},
-                navigateToSocializingMode = {navController.navigate(MoodTrackingDestination.route)}
+                navigateToRight = {navController.navigate(ExploreDestination.route)},
+                navigateToLeft = {navController.navigate(FaceRecognition.route)}
             )
         }
         composable(route = ExploreDestination.route) {
             ExploreScreen(
-                navigateToDangerWarning = {navController.navigate(DetectionDestination.route)},
-                navigateToDetection = {navController.navigate(DetectionDestination.route)},
-                navigateToSocializingMode = {navController.navigate(MoodTrackingDestination.route)}
+                navigateToLeft = {navController.navigate(DetectionDestination.route)},
+                navigateToRight = {navController.navigate(MoodTrackingDestination.route)}
             )
 
         }
         composable(route = MoodTrackingDestination.route) {
             MoodTrackingScreen(cameraExecutor = cameraExecutor,
-                navigateToFaceRecognition = {navController.navigate(FaceRecognition.route)},
-                navigateToExploreMode = {navController.navigate(DetectionDestination.route)}
+                navigateToRight = {navController.navigate(FaceRecognition.route)},
+                navigateToLeft = {navController.navigate(ExploreDestination.route)}
             )
         }
         composable(route = FaceRecognition.route) {
             FaceRecognitionScreen(
                 cameraExecutor = cameraExecutor,
-                navigateToMoodTracking = {navController.navigate(MoodTrackingDestination.route)},
-                navigateToExploreMode = {navController.navigate(DetectionDestination.route)}
+                navigateToRight = {navController.navigate(DetectionDestination.route)},
+                navigateToLeft = {navController.navigate(MoodTrackingDestination.route)}
             )
 
         }

@@ -214,7 +214,7 @@ fun ExploreScreen(navigateToLeft: () -> Unit = {},
             )
         },
 
-        topBar = {
+        bottomBar = {
             AppBar(destinationName = stringResource(ExploreDestination.titleRes))
         }
     ) { it ->

@@ -121,7 +121,7 @@ fun DetectionScreen(
                 }
             )
         },
-        topBar = {
+        bottomBar = {
             AppBar(destinationName = stringResource(DetectionDestination.titleRes))
         }
     ) { innerPadding ->

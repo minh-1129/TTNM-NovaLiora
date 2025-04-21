@@ -135,7 +135,7 @@ fun FaceRecognitionScreen(
                 }
             )
         },
-        topBar = {
+        bottomBar  = {
             AppBar(destinationName = stringResource(FaceRecognition.titleRes))
         }
     ) {

@@ -129,7 +129,7 @@ fun MoodTrackingScreen(
                 }
             )
         },
-        topBar = {
+        bottomBar  = {
             AppBar(destinationName = stringResource(MoodTrackingDestination.titleRes))
         }
     ) {

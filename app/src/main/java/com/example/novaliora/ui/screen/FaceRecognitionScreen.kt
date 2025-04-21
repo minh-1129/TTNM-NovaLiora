@@ -35,7 +35,6 @@ import com.example.novaliora.AppBar
 import com.example.novaliora.ApplicationViewModel
 import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
-import com.example.novaliora.SocializingModeBar
 import com.example.novaliora.features.face_recognition.FaceNetModel
 import com.example.novaliora.features.face_recognition.FaceRecognitionAnalyzer
 import com.example.novaliora.presentation.MainViewModel

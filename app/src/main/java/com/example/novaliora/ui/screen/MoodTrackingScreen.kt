@@ -33,7 +33,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.novaliora.AppBar
 import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
-import com.example.novaliora.SocializingModeBar
+
 import com.example.novaliora.features.face_detection.FaceDetectionAnalyzer
 import com.example.novaliora.presentation.MainViewModel
 import com.example.novaliora.ui.navigation.DetectionDestination

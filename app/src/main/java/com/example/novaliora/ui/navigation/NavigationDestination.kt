@@ -12,11 +12,6 @@ object DetectionDestination : NavigationDestination {
     override val titleRes = R.string.detection
 }
 
-object DangerWarningDestination : NavigationDestination {
-    override val route = "danger_warning"
-    override val titleRes = R.string.danger_warning
-}
-
 object ExploreDestination: NavigationDestination {
     override val route = "explore"
     override val titleRes = R.string.explore

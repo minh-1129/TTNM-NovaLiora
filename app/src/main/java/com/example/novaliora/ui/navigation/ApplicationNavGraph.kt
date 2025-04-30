@@ -18,6 +18,8 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import org.tensorflow.lite.Interpreter
 import java.util.concurrent.ExecutorService
+import com.example.novaliora.ui.screen.TextRecognitionScreen
+
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -69,8 +71,18 @@ fun ApplicationNavHost(
         composable(route = FaceRecognition.route) {
             FaceRecognitionScreen(
                 cameraExecutor = cameraExecutor,
-                navigateToRight = {navController.navigate(DetectionDestination.route)},
+                navigateToRight = {navController.navigate(TextRecognition.route)},
                 navigateToLeft = {navController.navigate(MoodTrackingDestination.route)}
+            )
+
+        }
+
+
+        composable(route = FaceRecognition.route) {
+            TextRecognitionScreen(
+                cameraExecutor = cameraExecutor,
+                navigateToRight = {navController.navigate(DetectionDestination.route)},
+                navigateToLeft = {navController.navigate(FaceRecognition.route)}
             )
 
         }

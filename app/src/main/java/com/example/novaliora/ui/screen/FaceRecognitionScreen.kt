@@ -39,7 +39,6 @@ import com.example.novaliora.features.face_recognition.FaceNetModel
 import com.example.novaliora.features.face_recognition.FaceRecognitionAnalyzer
 import com.example.novaliora.presentation.MainViewModel
 import com.example.novaliora.ui.navigation.FaceRecognition
-import com.example.novaliora.ui.navigation.MoodTrackingDestination
 import com.example.novaliora.utils.adjustPoint
 import com.example.novaliora.utils.adjustSize
 import com.example.novaliora.utils.drawBounds

@@ -62,14 +62,7 @@ class FaceRecognitionAnalyzer(
                                 val faceEmbedding = faceNetModel.getEmbedding(preprocessedImage)
 
                                 val famous = listOf(
-                                    "Billie Eilish",
-                                    "David Beckham",
-                                    "Donald Trump",
-                                    "MTP",
-                                    "Rihanna",
-                                    "Thu Vu",
-//                                    "Xuan Hung",
-                                    "Ha Tang"
+                                    "David Beckham"
                                 )
 
                                 EmbeddingStore.getEmbeddings().forEachIndexed { index, embedding ->

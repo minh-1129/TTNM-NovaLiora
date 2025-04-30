@@ -19,6 +19,7 @@ import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Face
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Search
@@ -49,6 +50,7 @@ fun AppBar(
         stringResource(R.string.explore) -> 1
         stringResource(R.string.mood_tracking) -> 2
         stringResource(R.string.face_recognition) -> 3
+        stringResource(R.string.text_recognition) -> 4
         else -> 0
     }
 
@@ -56,7 +58,8 @@ fun AppBar(
         TabItem("DETECT", Icons.Filled.Info),
         TabItem("EXPLORE", Icons.Filled.Search),
         TabItem("MOOD", Icons.Filled.Check),
-        TabItem("FACE", Icons.Filled.Face)
+        TabItem("FACE", Icons.Filled.Face),
+        TabItem("Text", Icons.Filled.Create)
     )
 
     Surface(

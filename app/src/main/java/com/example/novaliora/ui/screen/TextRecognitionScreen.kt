@@ -1,0 +1,199 @@
+package com.example.novaliora.ui.screen
+
+import android.annotation.SuppressLint
+import android.speech.tts.TextToSpeech
+import android.util.Log
+import android.view.Surface
+import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.ImageProxy
+import androidx.camera.view.PreviewView
+import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.novaliora.AppBar
+import com.example.novaliora.R
+import com.example.novaliora.presentation.MainViewModel
+import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
+import java.util.Locale
+import java.util.concurrent.ExecutorService
+import kotlin.math.abs
+
+
+@OptIn(ExperimentalGetImage::class)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun TextRecognitionScreen(
+    cameraExecutor: ExecutorService,
+    viewModel: MainViewModel = hiltViewModel(),
+    navigateToLeft: () -> Unit = {},
+    navigateToRight: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    lateinit var previewView: PreviewView
+
+    val recognizedText = remember { mutableStateOf("Chưa nhận diện được văn bản") }
+
+    var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
+
+    var lastSpokenText = remember { mutableStateOf("") }
+
+    // Khởi tạo TextToSpeech
+    LaunchedEffect(Unit) {
+        textToSpeech = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.language = Locale.US
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            textToSpeech?.shutdown()
+        }
+    }
+
+    // ML Kit Text Recognizer
+    val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+    val analyzer = ImageAnalysis.Analyzer { imageProxy ->
+        val mediaImage = imageProxy.image
+        if (mediaImage != null) {
+            val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+            textRecognizer.process(inputImage)
+                .addOnSuccessListener { visionText ->
+                    val detectedText = visionText.text
+                    if (detectedText.isNotBlank() && detectedText != lastSpokenText.value) {
+                        lastSpokenText.value = detectedText
+                        recognizedText.value = detectedText
+                        textToSpeech?.speak(detectedText, TextToSpeech.QUEUE_FLUSH, null, null)
+                    }
+                }
+                .addOnFailureListener {
+                    recognizedText.value = "Không thể nhận diện văn bản"
+                }
+                .addOnCompleteListener {
+                    imageProxy.close()
+                }
+        } else {
+            imageProxy.close()
+        }
+    }
+
+    // Gắn analyzer vào ImageAnalysis rồi truyền vào viewModel
+    val imageAnalysis = ImageAnalysis.Builder()
+        .setTargetRotation(Surface.ROTATION_0)
+        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+        .build()
+        .also {
+            it.setAnalyzer(cameraExecutor, analyzer)
+        }
+
+    viewModel.initRepo(imageAnalysis)
+
+    var hasNavigated by remember { mutableStateOf(false) }
+
+    Scaffold(
+        modifier = Modifier.pointerInput(Unit) {
+            detectDragGestures(
+                onDragStart = { hasNavigated = false },
+                onDrag = { _, dragAmount ->
+                    if (!hasNavigated && abs(dragAmount.x) > abs(dragAmount.y)) {
+                        if (abs(dragAmount.x) > 100f) {
+                            hasNavigated = true
+                            if (dragAmount.x > 0) {
+                                navigateToLeft()
+                            } else {
+                                navigateToRight()
+                            }
+                        }
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            AppBar(destinationName = stringResource(R.string.text_recognition))
+        }
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            AndroidView(
+                factory = {
+                    previewView = PreviewView(it)
+                    viewModel.showCameraPreview(previewView, lifecycleOwner)
+                    previewView
+                },
+                modifier = Modifier.fillMaxSize()
+                    .pointerInput(Unit) {
+                        detectTapGestures(
+                            onTap = {
+                                textToSpeech?.speak(recognizedText.value, TextToSpeech.QUEUE_FLUSH, null, null)
+                            }
+                        )
+                    }
+            )
+
+            // Văn bản được nhận diện
+            Text(
+                text = recognizedText.value,
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .padding(8.dp)
+            )
+        }
+    }
+}
+
+
+
+@OptIn(ExperimentalGetImage::class)
+fun processImageProxy(imageProxy: ImageProxy, textToSpeech: TextToSpeech) {
+    val mediaImage = imageProxy.image
+    if (mediaImage != null) {
+        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+
+        recognizer.process(image)
+            .addOnSuccessListener { visionText ->
+                if (visionText.text.isNotBlank()) {
+                    textToSpeech.speak(visionText.text, TextToSpeech.QUEUE_FLUSH, null, null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("TextRecognition", "Text recognition failed", e)
+            }
+            .addOnCompleteListener {
+                imageProxy.close()
+            }
+    } else {
+        imageProxy.close()
+    }
+}

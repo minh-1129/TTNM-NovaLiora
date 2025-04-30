@@ -128,6 +128,8 @@ dependencies {
     //Face detection introduced in ML Kit
     implementation("com.google.android.gms:play-services-mlkit-face-detection:17.1.0")
     implementation("com.google.android.gms:play-services-vision:20.1.3")
+    implementation("com.google.android.gms:play-services-mlkit-text-recognition:16.0.0")
+
 
     // Testing
     testImplementation("junit:junit:4.13.2")
@@ -145,5 +147,6 @@ dependencies {
     implementation("androidx.compose.material:material:1.7.5")
 
     implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
+    implementation("com.google.mlkit:text-recognition:16.0.1")
 
 }

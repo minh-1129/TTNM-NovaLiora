@@ -2,8 +2,10 @@ package com.example.novaliora.ui.screen
 
 import android.annotation.SuppressLint
 import android.media.MediaPlayer
+import android.os.Bundle
 import android.os.SystemClock
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.view.Surface
 import androidx.annotation.OptIn
@@ -70,6 +72,7 @@ fun TextRecognitionScreen(
     var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
 
     var lastSpokenText = remember { mutableStateOf("") }
+    val isReading = remember { mutableStateOf(false) }
 
     // Khởi tạo TextToSpeech
     LaunchedEffect(Unit) {
@@ -78,6 +81,27 @@ fun TextRecognitionScreen(
         textToSpeech = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech?.language = Locale.US
+                textToSpeech?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                    override fun onStart(utteranceId: String?) {
+                        Log.d("TTS", "onStart called with id: $utteranceId")
+                    }
+
+                    override fun onDone(utteranceId: String?) {
+                        Log.d("TTS", "onDone called with id: $utteranceId")
+                        isReading.value = false // Cho phép nhận diện lại
+                        lastSpokenText.value = ""
+                    }
+
+                    override fun onError(utteranceId: String?) {
+                        Log.e("TTS", "onError called with id: $utteranceId")
+                        Log.d("TTS", isReading.value.toString())
+                        isReading.value = false
+                    }
+                })
+                val params = Bundle().apply {
+                    putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "TEST_ID")
+                }
+                textToSpeech?.speak("Hello world", TextToSpeech.QUEUE_FLUSH, params, "TEST_ID")
             }
         }
     }
@@ -98,24 +122,34 @@ fun TextRecognitionScreen(
     val speakDelayMillis = 2000L // 2 giây
 
     val analyzer = ImageAnalysis.Analyzer { imageProxy ->
+        if (isReading.value) {
+            imageProxy.close()
+            return@Analyzer
+        }
+
         val mediaImage = imageProxy.image
         if (mediaImage != null) {
             val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
             textRecognizer.process(inputImage)
                 .addOnSuccessListener { visionText ->
                     val detectedText = visionText.text
+                    Log.d("TTS", detectedText)
                     val currentTime = SystemClock.elapsedRealtime()
 
                     if (
                         detectedText.isNotBlank() &&
-                        detectedText != lastSpokenText.value &&
-                        currentTime - lastSpeakTime.value > speakDelayMillis
+                        detectedText != lastSpokenText.value
+//                        && currentTime - lastSpeakTime.value > speakDelayMillis
                     ) {
                         lastSpokenText.value = detectedText
                         recognizedText.value = detectedText
                         lastSpeakTime.value = currentTime
-                        textToSpeech?.speak(detectedText, TextToSpeech.QUEUE_FLUSH, null, null)
-                    }
+                        isReading.value = true
+                        Log.d("TTS", isReading.value.toString())
+//                        val params = Bundle().apply {
+//                            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "TTS_DONE")
+//                        }
+                        textToSpeech?.speak(detectedText, TextToSpeech.QUEUE_FLUSH, null, "TTS_DONE")                    }
                 }
                 .addOnFailureListener {
                     recognizedText.value = "Không thể nhận diện văn bản"

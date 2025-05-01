@@ -52,7 +52,7 @@ fun ApplicationNavHost(
                 labels = labels,
                 textToSpeech = textToSpeech,
                 navigateToRight = {navController.navigate(ExploreDestination.route)},
-                navigateToLeft = {navController.navigate(FaceRecognition.route)}
+                navigateToLeft = {navController.navigate(TextRecognition.route)}
             )
         }
         composable(route = ExploreDestination.route) {
@@ -78,7 +78,7 @@ fun ApplicationNavHost(
         }
 
 
-        composable(route = FaceRecognition.route) {
+        composable(route = TextRecognition.route) {
             TextRecognitionScreen(
                 cameraExecutor = cameraExecutor,
                 navigateToRight = {navController.navigate(DetectionDestination.route)},

@@ -1,6 +1,8 @@
 package com.example.novaliora.ui.screen
 
 import android.annotation.SuppressLint
+import android.media.MediaPlayer
+import android.os.SystemClock
 import android.speech.tts.TextToSpeech
 import android.util.Log
 import android.view.Surface
@@ -35,6 +37,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.novaliora.AppBar
+import com.example.novaliora.DragThreshold
 import com.example.novaliora.R
 import com.example.novaliora.presentation.MainViewModel
 import com.google.mlkit.vision.common.InputImage
@@ -43,6 +46,8 @@ import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import java.util.Locale
 import java.util.concurrent.ExecutorService
 import kotlin.math.abs
+import com.example.novaliora.DragThreshold
+import kotlinx.coroutines.delay
 
 
 @OptIn(ExperimentalGetImage::class)
@@ -55,6 +60,8 @@ fun TextRecognitionScreen(
     navigateToRight: () -> Unit = {}
 ) {
     val context = LocalContext.current
+    val detectionSound = remember { MediaPlayer.create(context, R.raw.object_detection) }
+
     val lifecycleOwner = LocalLifecycleOwner.current
     lateinit var previewView: PreviewView
 
@@ -66,6 +73,8 @@ fun TextRecognitionScreen(
 
     // Khởi tạo TextToSpeech
     LaunchedEffect(Unit) {
+        detectionSound.start()
+        delay(detectionSound.duration.toLong())
         textToSpeech = TextToSpeech(context) { status ->
             if (status == TextToSpeech.SUCCESS) {
                 textToSpeech?.language = Locale.US
@@ -75,12 +84,18 @@ fun TextRecognitionScreen(
 
     DisposableEffect(Unit) {
         onDispose {
+            detectionSound.stop()
+            detectionSound.release()
+            textToSpeech?.stop()
             textToSpeech?.shutdown()
+//            viewModel.stopCamera()
         }
     }
 
     // ML Kit Text Recognizer
     val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    var lastSpeakTime = remember { mutableStateOf(0L) }
+    val speakDelayMillis = 2000L // 2 giây
 
     val analyzer = ImageAnalysis.Analyzer { imageProxy ->
         val mediaImage = imageProxy.image
@@ -89,9 +104,16 @@ fun TextRecognitionScreen(
             textRecognizer.process(inputImage)
                 .addOnSuccessListener { visionText ->
                     val detectedText = visionText.text
-                    if (detectedText.isNotBlank() && detectedText != lastSpokenText.value) {
+                    val currentTime = SystemClock.elapsedRealtime()
+
+                    if (
+                        detectedText.isNotBlank() &&
+                        detectedText != lastSpokenText.value &&
+                        currentTime - lastSpeakTime.value > speakDelayMillis
+                    ) {
                         lastSpokenText.value = detectedText
                         recognizedText.value = detectedText
+                        lastSpeakTime.value = currentTime
                         textToSpeech?.speak(detectedText, TextToSpeech.QUEUE_FLUSH, null, null)
                     }
                 }
@@ -105,6 +127,7 @@ fun TextRecognitionScreen(
             imageProxy.close()
         }
     }
+
 
     // Gắn analyzer vào ImageAnalysis rồi truyền vào viewModel
     val imageAnalysis = ImageAnalysis.Builder()
@@ -123,9 +146,9 @@ fun TextRecognitionScreen(
         modifier = Modifier.pointerInput(Unit) {
             detectDragGestures(
                 onDragStart = { hasNavigated = false },
-                onDrag = { _, dragAmount ->
+                onDrag = { change, dragAmount ->
                     if (!hasNavigated && abs(dragAmount.x) > abs(dragAmount.y)) {
-                        if (abs(dragAmount.x) > 100f) {
+                        if (abs(dragAmount.x) > DragThreshold) {
                             hasNavigated = true
                             if (dragAmount.x > 0) {
                                 navigateToLeft()

@@ -15,23 +15,28 @@ import java.io.File
 class CoordinatesModelRepoImpl(
     val applicationContext: Context
 ) : CoordinatesModelRepo {
+    fun uriToHex(context: Context, uri: Uri): String {
+        val resolver = context.contentResolver
+        val inputStream = resolver.openInputStream(uri) ?: return ""
+        val bytes = inputStream.readBytes()
+        return bytes.joinToString("") { "%02x".format(it) } // Mỗi byte thành 2 ký tự hex
+    }
+
 
     override suspend fun getCoordinatesModel(requestModel: RequestModel): Response<CoordinatesModel> {
         return withContext(Dispatchers.IO) {
-            val file = getTempFile(applicationContext, requestModel.uri)
-            Log.d("TAG", "getCoordinatesModel: File = $file")
+            val hexImage = uriToHex(applicationContext, requestModel.uri)
+            Log.d("TAG", "Hex image length = ${hexImage.length}")
+
             CoordinatesModelApi.instance.getCoordinatesModel(
                 text = requestModel.text.toRequestBody(MultipartBody.FORM),
                 width = requestModel.width.toRequestBody(MultipartBody.FORM),
                 height = requestModel.height.toRequestBody(MultipartBody.FORM),
-                image = MultipartBody.Part.createFormData(
-                    name = "image",
-                    filename = file?.name,
-                    body = file!!.asRequestBody(MultipartBody.FORM)
-                )
+                imageHex = hexImage.toRequestBody(MultipartBody.FORM)
             )
         }
     }
+
 
 }
 

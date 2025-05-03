@@ -12,15 +12,18 @@ import retrofit2.http.Part
 import java.util.concurrent.TimeUnit
 
 
+import retrofit2.http.Field
+import retrofit2.http.FormUrlEncoded
+
 interface CoordinatesModelApi {
 
     @POST("/api/detect")
-    @Multipart
+    @FormUrlEncoded
     suspend fun getCoordinatesModel(
-        @Part("prompt") text: RequestBody?,
-        @Part("width") width: RequestBody?,
-        @Part("height") height: RequestBody?,
-        @Part image : MultipartBody.Part,
+        @Field("prompt") text: String?,
+        @Field("width") width: String?,
+        @Field("height") height: String?,
+        @Field("image_hex") imageHex: String
     ): Response<CoordinatesModel>
 
     companion object {
@@ -31,6 +34,7 @@ interface CoordinatesModelApi {
                 .writeTimeout(240, TimeUnit.SECONDS)
                 .readTimeout(240, TimeUnit.SECONDS)
                 .build()
+
         val instance: CoordinatesModelApi by lazy {
             Retrofit.Builder()
                 .baseUrl("https://paligemma.onrender.com")

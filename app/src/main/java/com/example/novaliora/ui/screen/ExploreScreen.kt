@@ -263,8 +263,6 @@ fun ExploreScreen(navigateToLeft: () -> Unit = {},
                                 requestModel = RequestModel(
                                     text = text,
                                     uri = mainViewModel.capturedImageUri.value ?: Uri.EMPTY,
-                                    height = imageHeight.toString(),
-                                    width = imageWidth.toString()
                                 )
                             )
                         }

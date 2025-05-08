@@ -1,29 +1,25 @@
 package com.example.novaliora.Data
 
-import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Multipart
+import retrofit2.http.Body
 import retrofit2.http.POST
-import retrofit2.http.Part
 import java.util.concurrent.TimeUnit
 
+// Data class đại diện cho body gửi đi
+data class CoordinatesRequest(
+    val prompt: String?,
+    val image_bytes: String
+)
 
-import retrofit2.http.Field
-import retrofit2.http.FormUrlEncoded
-
+// Interface API
 interface CoordinatesModelApi {
 
-    @POST("/api/detect")
-    @FormUrlEncoded
+    @POST("/predict")
     suspend fun getCoordinatesModel(
-        @Field("prompt") text: String?,
-        @Field("width") width: String?,
-        @Field("height") height: String?,
-        @Field("image_hex") imageHex: String
+        @Body request: CoordinatesRequest
     ): Response<CoordinatesModel>
 
     companion object {
@@ -37,7 +33,7 @@ interface CoordinatesModelApi {
 
         val instance: CoordinatesModelApi by lazy {
             Retrofit.Builder()
-                .baseUrl("https://paligemma.onrender.com")
+                .baseUrl("https://8000-01jtn310t84krx8bwe80784905.cloudspaces.litng.ai")
                 .addConverterFactory(GsonConverterFactory.create())
                 .client(client)
                 .build()

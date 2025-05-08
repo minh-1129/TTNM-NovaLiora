@@ -45,14 +45,8 @@ class CoordinatesModelViewModel(
 
                 _uiState.value = when {
 
-                    coordinatesModel?.response != null -> {
-                        UiState.CaptionResponse(coordinatesModel.response)
-                    }
-
-                    coordinatesModel?.error != null -> {
-                        UiState.Error(
-                            coordinatesModel.error
-                        )
+                    coordinatesModel?.output != null -> {
+                        UiState.CaptionResponse(coordinatesModel.output)
                     }
 
                     else -> {

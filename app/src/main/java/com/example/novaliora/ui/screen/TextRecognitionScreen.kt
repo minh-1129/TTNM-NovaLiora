@@ -163,7 +163,6 @@ fun TextRecognitionScreen(
     }
 
 
-    // Gắn analyzer vào ImageAnalysis rồi truyền vào viewModel
     val imageAnalysis = ImageAnalysis.Builder()
         .setTargetRotation(Surface.ROTATION_0)
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
@@ -215,7 +214,6 @@ fun TextRecognitionScreen(
                     }
             )
 
-            // Văn bản được nhận diện
             Text(
                 text = recognizedText.value,
                 color = Color.White,
@@ -230,27 +228,3 @@ fun TextRecognitionScreen(
 }
 
 
-
-@OptIn(ExperimentalGetImage::class)
-fun processImageProxy(imageProxy: ImageProxy, textToSpeech: TextToSpeech) {
-    val mediaImage = imageProxy.image
-    if (mediaImage != null) {
-        val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-        val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-
-        recognizer.process(image)
-            .addOnSuccessListener { visionText ->
-                if (visionText.text.isNotBlank()) {
-                    textToSpeech.speak(visionText.text, TextToSpeech.QUEUE_FLUSH, null, null)
-                }
-            }
-            .addOnFailureListener { e ->
-                Log.e("TextRecognition", "Text recognition failed", e)
-            }
-            .addOnCompleteListener {
-                imageProxy.close()
-            }
-    } else {
-        imageProxy.close()
-    }
-}

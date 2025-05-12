@@ -62,7 +62,7 @@ fun TextRecognitionScreen(
     navigateToRight: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val detectionSound = remember { MediaPlayer.create(context, R.raw.object_detection) }
+    val detectionSound = remember { MediaPlayer.create(context, R.raw.text_detection) }
 
     val lifecycleOwner = LocalLifecycleOwner.current
     lateinit var previewView: PreviewView

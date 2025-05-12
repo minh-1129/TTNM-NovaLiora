@@ -24,6 +24,9 @@ object EmbeddingStore {
     private fun embeddingStoredImages(context: Context, faceNetModel: FaceNetModel): List<FloatArray> {
         val famousImages = listOf(
             R.drawable.david_beckham,
+            R.drawable.phuoc1,
+            R.drawable.phuoc2,
+            R.drawable.phuoc3
         )
 
         val embeddings = mutableListOf<FloatArray>()

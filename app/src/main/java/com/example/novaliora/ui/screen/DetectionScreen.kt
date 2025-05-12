@@ -187,10 +187,10 @@ fun CameraPreview(
     val detectionListObject by remember { viewModel.detectionList }
 
     val paint = Paint()
-    val pathColorList = listOf(Color.Red, Color.Green, Color.Cyan, Color.Blue)
+    val pathColorList = listOf(Color.Yellow, Color.Red, Color.Cyan, Color.Blue)
     val pathColorListInt = listOf(
+        android.graphics.Color.YELLOW,
         android.graphics.Color.RED,
-        android.graphics.Color.GREEN,
         android.graphics.Color.CYAN,
         android.graphics.Color.BLUE
     )

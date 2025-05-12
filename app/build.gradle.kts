@@ -149,4 +149,9 @@ dependencies {
     implementation("androidx.compose.runtime:runtime-livedata:1.5.1")
     implementation("com.google.mlkit:text-recognition:16.0.1")
 
+    implementation("androidx.compose.material:material-icons-extended:<version>")
+
+    implementation("br.com.devsrsouza.compose.icons:font-awesome:1.1.0")
+    implementation("br.com.devsrsouza.compose.icons:feather:1.1.0")
+
 }

@@ -20,9 +20,14 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.ImageSearch
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Mood
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Textsms
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +36,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.novaliora.features.object_detection.YuvToRgbConverter
@@ -55,11 +61,11 @@ fun AppBar(
     }
 
     val tabs = listOf(
-        TabItem("DETECT", Icons.Filled.Info),
-        TabItem("EXPLORE", Icons.Filled.Search),
-        TabItem("MOOD", Icons.Filled.Check),
+        TabItem("DETECT", Icons.Filled.ImageSearch),
+        TabItem("EXPLORE", Icons.Filled.Explore),
+        TabItem("EMOTION", Icons.Filled.EmojiEmotions),
         TabItem("FACE", Icons.Filled.Face),
-        TabItem("Text", Icons.Filled.Create)
+        TabItem("Text", Icons.Filled.Textsms)
     )
 
     Surface(
@@ -105,6 +111,7 @@ fun AppBar(
                             Text(
                                 text = tabItem.title,
                                 color = if (selectedTabIndex == index) Color.Black else Color.Gray,
+                                fontSize = 10.sp,
                                 style = MaterialTheme.typography.caption.copy(
                                     fontWeight = if (selectedTabIndex == index) FontWeight.SemiBold else FontWeight.Normal
                                 )

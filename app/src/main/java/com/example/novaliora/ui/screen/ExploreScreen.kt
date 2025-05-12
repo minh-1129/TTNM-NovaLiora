@@ -272,31 +272,28 @@ fun ExploreScreen(navigateToLeft: () -> Unit = {},
 
                     Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .weight(1f)
-                            .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(boxColor)
+                            .padding(16.dp)
+                            .size(64.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(Color(0xFF29B6F6).copy(alpha = 0.8f)) // Nền xanh nhẹ có độ mờ
                             .pointerInput(Unit) {
                                 detectTapGestures(
-                                    onPress = {
+                                    onTap = {
                                         newPictureSound.start()
                                         showCameraPreview = true
-                                    },
+                                    }
                                 )
                             },
-
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.baseline_camera_alt_24),
-                            contentDescription = "New picture",
+                            contentDescription = "Take another photo",
                             tint = Color.White,
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .size(48.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                     }
+
 
                 }
             } else {

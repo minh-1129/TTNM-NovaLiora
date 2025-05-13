@@ -119,7 +119,7 @@ fun TextRecognitionScreen(
             detectionSound.release()
             textToSpeech?.stop()
             textToSpeech?.shutdown()
-//            viewModel.stopCamera()
+
         }
     }
 
@@ -146,16 +146,12 @@ fun TextRecognitionScreen(
                     if (
                         detectedText.isNotBlank() &&
                         detectedText != lastSpokenText.value
-//                        && currentTime - lastSpeakTime.value > speakDelayMillis
                     ) {
                         lastSpokenText.value = detectedText
                         recognizedText.value = detectedText
                         lastSpeakTime.value = currentTime
                         isReading.value = true
                         Log.d("TTS", isReading.value.toString())
-//                        val params = Bundle().apply {
-//                            putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "TTS_DONE")
-//                        }
                         textToSpeech?.speak(detectedText, TextToSpeech.QUEUE_FLUSH, null, "TTS_DONE")                    }
                 }
                 .addOnFailureListener {
@@ -225,7 +221,7 @@ fun TextRecognitionScreen(
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(top = 500.dp)
-                    .background(Color(0xCCEEEEEE), shape = RoundedCornerShape(12.dp)) // Nền sáng
+                    .background(Color(0xCCEEEEEE), shape = RoundedCornerShape(12.dp))
                     .padding(12.dp)
                     .fillMaxWidth(0.95f)
                     .heightIn(max = 200.dp)
@@ -233,7 +229,7 @@ fun TextRecognitionScreen(
             ) {
                 Text(
                     text = recognizedText.value,
-                    color = Color.Black, // Đổi chữ sang đen để dễ đọc trên nền sáng
+                    color = Color.Black,
                     fontSize = 16.sp,
                     lineHeight = 22.sp,
                     textAlign = TextAlign.Start

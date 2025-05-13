@@ -177,7 +177,7 @@ fun DrawFaces(faces: List<Face>, imageWidth: Int, imageHeight: Int, screenWidth:
             drawContext.canvas.nativeCanvas.drawText(
                 recognition,
                 topLeft.x,
-                topLeft.y - 10, // Position the text above the bounding box
+                topLeft.y - 10,
                 android.graphics.Paint().apply {
                     color = android.graphics.Color.YELLOW
                     textSize = 40f

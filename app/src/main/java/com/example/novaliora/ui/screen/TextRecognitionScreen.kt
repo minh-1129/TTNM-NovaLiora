@@ -81,7 +81,7 @@ fun TextRecognitionScreen(
     var lastSpokenText = remember { mutableStateOf("") }
     val isReading = remember { mutableStateOf(false) }
 
-    // Khởi tạo TextToSpeech
+
     LaunchedEffect(Unit) {
         detectionSound.start()
         delay(detectionSound.duration.toLong())
@@ -95,7 +95,7 @@ fun TextRecognitionScreen(
 
                     override fun onDone(utteranceId: String?) {
                         Log.d("TTS", "onDone called with id: $utteranceId")
-                        isReading.value = false // Cho phép nhận diện lại
+                        isReading.value = false
                         lastSpokenText.value = ""
                     }
 
@@ -123,10 +123,10 @@ fun TextRecognitionScreen(
         }
     }
 
-    // ML Kit Text Recognizer
+
     val textRecognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     var lastSpeakTime = remember { mutableStateOf(0L) }
-    val speakDelayMillis = 2000L // 2 giây
+    val speakDelayMillis = 2000L
 
     val analyzer = ImageAnalysis.Analyzer { imageProxy ->
         if (isReading.value) {
